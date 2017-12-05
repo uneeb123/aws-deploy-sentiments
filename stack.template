@@ -5,8 +5,22 @@
     "EC2Instance" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [ "IPAddress=", {"Ref" : "IPAddress"}]]}},
-        "InstanceType" : "t1.micro",
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
+          "IPAddress=", {"Ref" : "IPAddress"},
+          "#!/bin/bash\n",
+          "sudo apt-get update -y\n",
+          "sudo apt-get install curl -y\n",
+          "gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB\n",
+          "\curl -L https://get.rvm.io | bash -s stable --ruby\n",
+          "source /home/ubuntu/.rvm/scripts/rvm\n",
+          "sudo apt-get install -y nodejs\n",
+          "gem install bundler\n",
+          "git clone https://github.com/uneeb123/display-sentiments.git\n",
+          "cd display-sentiments\n",
+          "bundle install\n",
+          "rails server -e production\n"
+        ]]}},
+        "InstanceType" : "t2.micro",
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "KeyName" : "sentiments",
         "ImageId" : "ami-835b4efa"
@@ -16,9 +30,13 @@
     "InstanceSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "GroupDescription" : "Enable SSH access",
+        "GroupDescription" : "Enable SSH access and allow HTTP traffic",
         "SecurityGroupIngress" :
-          [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"} ]
+          [ 
+            { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+            { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"},
+            { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "10.63.180.212/32"}
+          ]
       }
     },
 

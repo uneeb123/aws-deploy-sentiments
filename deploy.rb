@@ -22,7 +22,7 @@ Aws.config.update({
 client = Aws::CloudFormation::Client.new
 
 resp = client.create_stack({
-  stack_name: 'TestStack',
+  stack_name: 'SentimentsStack',
   template_body: get_template_from_file,
 })
 
